@@ -4,7 +4,28 @@ const fs = require('fs');
 const casual = require('casual');
 let settings = {
     prodQty: 40,
-    catQty: 10
+    catQty: 10,
+    colors: [
+        'E6E2AF',
+        'A7A37E',
+        'EFECCA',
+        '046380',
+        '002F2F',
+        '003D3D',
+        '005959',
+        '057A9E',
+        '034357',
+        '7D7A5E',
+        '454334',
+        'A19D79',
+        'D1DBBD',
+        '91AA9D',
+        '3E606F',
+        '193441',
+        '23495C',
+        '326882',
+        '8D9480'
+    ]
 }
 
 const dbPath = './ecomdb.json';
@@ -19,14 +40,14 @@ let data = {
 casual.define('category', function() {
     let options = {
         title: casual.title,
-        color: casual.rgb_hex.replace('#', '')
+        color: getColor()
     }
     return {
         id : casual.integer(0, 999999),
         title: options.title,
         description: casual.description,
         image: {
-            banner: 'https://placehold.it/1000x200' + options.color + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
+            banner: 'https://placehold.it/1000x200/' + options.color + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
         },
         productAssignments: assignRandomProducts(data.products)
     };
@@ -35,8 +56,8 @@ casual.define('category', function() {
 casual.define('product', function() {
     let options = {
         title: casual.title,
-        maincolor: casual.rgb_hex.replace('#', ''),
-        altcolor: casual.rgb_hex.replace('#', '')
+        maincolor: getColor(),
+        altcolor: getColor()
 
     }
     return {
@@ -45,15 +66,23 @@ casual.define('product', function() {
         price: (Math.round(casual.double(0.01, 200) * 100)/100).toFixed(2),
         description: casual.description,
         image: [{
-                main: 'https://placehold.it/600x600' + options.maincolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
-                zoom: 'https://placehold.it/1200x1200' + options.maincolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+')
+                main: 'https://placehold.it/600x600/' + options.maincolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
+                zoom: 'https://placehold.it/1200x1200/' + options.maincolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+')
             },{
-                main: 'https://placehold.it/600x600' + options.altcolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
-                zoom: 'https://placehold.it/1200x1200' + options.altcolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+')
+                main: 'https://placehold.it/600x600/' + options.altcolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
+                zoom: 'https://placehold.it/1200x1200/' + options.altcolor + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+')
             }
         ]
     };
 });
+
+/**
+ * Returns a random color from the color setting array
+ * @returns color {String}
+ */
+const getColor = function() {
+    return settings.colors[casual.integer(0,(settings.colors.length - 1))]
+}
 
 /**
  * Returns randomly generated categories
