@@ -43,11 +43,11 @@ casual.define('category', function() {
         color: getColor()
     }
     return {
-        id : casual.integer(0, 999999),
+        id : casual.integer(100000, 999999),
         title: options.title,
         description: casual.description,
         image: {
-            banner: 'https://placehold.it/1000x200/' + options.color + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
+            banner: 'https://placehold.it/1300x200/' + options.color + '?text=' + options.title.replace(new RegExp(' ', 'g'), '+'),
         },
         productAssignments: assignRandomProducts(data.products)
     };
@@ -61,7 +61,7 @@ casual.define('product', function() {
 
     }
     return {
-        id : casual.integer(0, 999999),
+        id : casual.integer(100000, 999999),
         title: options.title,
         price: (Math.round(casual.double(0.01, 200) * 100)/100).toFixed(2),
         description: casual.description,
@@ -82,6 +82,35 @@ casual.define('product', function() {
  */
 const getColor = function() {
     return settings.colors[casual.integer(0,(settings.colors.length - 1))]
+}
+
+/**
+ * Chooses products ids at random and returns them
+ * @param products {Array}
+ * @returns productIds {Array}
+ */
+function assignRandomProducts(products) {
+    let filteredProds = products.filter( (prod) => Math.round(Math.random()) );
+    let prodIdsArr = filteredProds.map( (prod) => prod.id );
+
+    return prodIdsArr;
+}
+
+/**
+ * Chooses products to assign as upsells
+ * @param products {Array}
+ * @returns productIds {Array}
+*/
+function assignUpsellProducts(prodArr) {
+    let filteredProds = prodArr.filter( (prod) => Math.round(Math.random()) );
+    let prodIdsArr = filteredProds.map( (prod) => prod.id );
+    let returnIdsArr = [];
+    let i;
+    for(let i = 0; i < 3; i++) {
+        returnIdsArr.push(prodIdsArr[Math.floor(Math.random()*prodIdsArr.length)]);
+    }
+
+    return returnIdsArr;
 }
 
 /**
@@ -113,19 +142,11 @@ function getProducts() {
         product = casual.product;
         prodArr.push(product);
     }
+    for(i = 0; i < prodArr.length; i++) {
+        prodArr[i].upsells = assignUpsellProducts(prodArr)
+    }
+
     return prodArr;
-}
-
-/**
- * Chooses products ids at random and returns them
- * @param products {Array}
- * @returns products ids {Array}
- */
-function assignRandomProducts(products) {
-    let filteredCats = products.filter( (prod) => Math.round(Math.random()) );
-    let prodIdsArr = filteredCats.map( (prod) => prod.id );
-
-    return prodIdsArr;
 }
 
 data.products = getProducts();
